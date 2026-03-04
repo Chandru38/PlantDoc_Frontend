@@ -1,0 +1,35 @@
+
+<svg viewBox="0 0 320 100" xmlns="http://www.w3.org/2000/svg" class="h-10 w-auto">
+
+  <!-- Gradient Definition -->
+  <defs>
+    <linearGradient id="brandGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#22c55e"/>
+      <stop offset="100%" stop-color="#4f46e5"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Main Text -->
+  <text 
+    x="0" 
+    y="45"
+    font-family="Segoe UI, Arial, sans-serif"
+    font-size="40"
+    font-weight="700"
+    fill="url(#brandGradient)"
+  >
+    PlantDoc
+  </text>
+
+  <!-- Tagline -->
+  <text 
+    x="2" 
+    y="75"
+    font-family="Segoe UI, Arial, sans-serif"
+    font-size="20"
+    fill="#0a0a0a"
+  >
+    Smart Plant Health Diagnosis
+  </text>
+
+</svg>

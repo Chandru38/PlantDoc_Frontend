@@ -1,0 +1,180 @@
+import Title from './Title'
+import React, { useState } from "react";
+import { useDropzone } from "react-dropzone";
+import axios from "axios";
+import upload from "../assets/upload_icon.svg"
+
+const DiseaseRecognize = () => {
+
+    const [file, setFile] = useState(null);
+    const [preview, setPreview] = useState(null);
+    const [loading, setLoading] = useState(false);
+    const [result, setResult] = useState(null);
+
+    const { getRootProps, getInputProps, open } = useDropzone({
+        accept: { "image/*": [] },
+        noClick: true,
+        onDrop: (acceptedFiles) => {
+            const selected = acceptedFiles[0];
+            setFile(selected);
+            setPreview(URL.createObjectURL(selected));
+            setResult(null); // ✅ reset old result
+        },
+    });
+
+    const handlePredict = async () => {
+        if (!file) return alert("Upload an image first!");
+
+        const formData = new FormData();
+        formData.append("file", file);
+
+        try {
+            setLoading(true);
+
+            const res = await axios.post(
+                "http://127.0.0.1:8000/predict",
+                formData,
+                {
+                    headers: {
+                        "Content-Type": "multipart/form-data"
+                    }
+                }
+            );
+
+            const data = res.data;
+
+            setResult({
+                class: data.predicted_class,
+                confidence: data.confidence,
+                details: data.remedies
+            });
+
+        } catch (error) {
+            console.error(error);
+            alert("Prediction failed. Check backend.");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    return (
+        <div id='disease-recognizer' className='flex flex-col items-center gap-7 px-4 sm:px-12 lg:px-24 xl:px-40 pt-30 text-text bg-(--color-hero)'>
+
+            <Title
+                title='Disease Recognizer'
+                desc='Upload a plant leaf image to detect disease and get remedies instantly.'
+            />
+
+            <div className="flex flex-col items-center p-10 w-full">
+
+                {/* Drag & Drop */}
+                <div
+                    {...getRootProps()}
+                    className="flex flex-col items-center justify-center gap-3 p-8 border-2 border-dashed border-gray-400 rounded-lg cursor-pointer w-full max-w-xl"
+                >
+                    <input {...getInputProps()} />
+                    <img src={upload} alt="upload icon" className="w-12" />
+                    <p>Drag & drop image here</p>
+                    <button
+                        type='button'
+                        onClick={open}
+                        className="px-6 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700"
+                    >
+                        Browse
+                    </button>
+                </div>
+
+                {/* Selected file */}
+                {file && (
+                    <p className="mt-4 text-sm">
+                        Selected File: <strong>{file.name}</strong>
+                    </p>
+                )}
+
+                {/* Image Preview */}
+                {preview && (
+                    <img
+                        src={preview}
+                        alt="preview"
+                        className="mt-4 w-64 rounded-lg shadow-md"
+                    />
+                )}
+
+                {/* Predict Button */}
+                <button
+                    onClick={handlePredict}
+                    disabled={loading}
+                    className="mt-6 px-6 py-2 bg-blue-800 text-white rounded-lg hover:bg-blue-700"
+                >
+                    {loading ? "Predicting..." : "Predict"}
+                </button>
+
+                {/* RESULT SECTION */}
+                {result && (
+                    <div className="mt-8 bg-blue-800 text-text p-6 rounded-lg w-full max-w-2xl shadow-md">
+
+                        {/* Predicted Class */}
+                        <h2 className="text-2xl font-bold mb-2">
+                            {result.class}
+                        </h2>
+
+                        <p className="mb-3">
+                            <strong>Confidence:</strong> {result.confidence}%
+                        </p>
+
+                        {/* If disease details exist */}
+                        {result.details && (
+                            <>
+                                {result.details.description && (
+                                    <p className="mb-3">
+                                        {result.details.description}
+                                    </p>
+                                )}
+
+                                {/* Remedies */}
+                                {result.details.remedies?.length > 0 && (
+                                    <>
+                                        <h3 className="font-semibold mt-4">Remedies:</h3>
+                                        <ul className="list-disc ml-6">
+                                            {result.details.remedies.map((item, index) => (
+                                                <li key={index}>{item}</li>
+                                            ))}
+                                        </ul>
+                                    </>
+                                )}
+
+                                {/* Precautions */}
+                                {result.details.precautions?.length > 0 && (
+                                    <>
+                                        <h3 className="font-semibold mt-4">Precautions:</h3>
+                                        <ul className="list-disc ml-6">
+                                            {result.details.precautions.map((item, index) => (
+                                                <li key={index}>{item}</li>
+                                            ))}
+                                        </ul>
+                                    </>
+                                )}
+
+                                {/* Prevention */}
+                                {result.details.prevention?.length > 0 && (
+                                    <>
+                                        <h3 className="font-semibold mt-4">Prevention:</h3>
+                                        <ul className="list-disc ml-6">
+                                            {result.details.prevention.map((item, index) => (
+                                                <li key={index}>{item}</li>
+                                            ))}
+                                        </ul>
+                                    </>
+                                )}
+                            </>
+                        )}
+
+                    </div>
+                )}
+
+            </div>
+        </div>
+    );
+};
+
+export default DiseaseRecognize;
