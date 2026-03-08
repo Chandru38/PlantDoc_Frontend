@@ -18,7 +18,7 @@ const DiseaseRecognize = () => {
             const selected = acceptedFiles[0];
             setFile(selected);
             setPreview(URL.createObjectURL(selected));
-            setResult(null); // eset old result
+            setResult(null); // reset old result
         },
     });
 
