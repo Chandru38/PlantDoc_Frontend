@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import { useDropzone } from "react-dropzone";
 import axios from "axios";
 import upload from "../assets/upload_icon.svg"
+const API_URL = "https://plantdoc-backend-dgof.onrender.com/predict";
 
 const DiseaseRecognize = () => {
 
@@ -32,7 +33,7 @@ const DiseaseRecognize = () => {
             setLoading(true);
 
             const res = await axios.post(
-                "https://plantdoc-backend-dgof.onrender.com/predict",
+                API_URL,
                 formData,
                 {
                     headers: {
