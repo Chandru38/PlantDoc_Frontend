@@ -45,9 +45,9 @@ const DiseaseRecognize = () => {
             const data = res.data;
 
             setResult({
-                class: data.class,
+                class: data.perdicted_class,
                 confidence: data.confidence,
-                details: data.details
+                details: data.remedies
             });
 
         } catch (error) {
