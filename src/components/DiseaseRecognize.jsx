@@ -3,7 +3,9 @@ import React, { useState } from "react";
 import { useDropzone } from "react-dropzone";
 import axios from "axios";
 import upload from "../assets/upload_icon.svg"
-const API_URL = "https://chandrusankar-plantdoc-backend.hf.space/predict";
+const API_MODEL1 = "https://chandrusankar-plantdoc-backend.hf.space/predict";
+const API_MODEL2 = "https://chandrusankar-plantdoc-backend2.hf.space/predict";
+
 
 const DiseaseRecognize = () => {
 
@@ -25,34 +27,43 @@ const DiseaseRecognize = () => {
 
     const handlePredict = async () => {
         if (!file) return alert("Upload an image first!");
-
-        const formData = new FormData();
-        formData.append("file", file);
-
+    
+        const formData1 = new FormData();
+        formData1.append("file", file);
+    
+        const formData2 = new FormData();
+        formData2.append("file", file);
+    
         try {
             setLoading(true);
-
-            const res = await axios.post(
-                API_URL,
-                formData,
-                {
-                    headers: {
-                        "Content-Type": "multipart/form-data"
-                    }
-                }
-            );
-
-            const data = res.data;
-
+    
+            // Call both APIs
+            const [res1, res2] = await Promise.all([
+                axios.post(API_MODEL1, formData1),
+                axios.post(API_MODEL2, formData2)
+            ]);
+    
+            const data1 = res1.data;
+            const data2 = res2.data;
+    
+            // Choose prediction with higher confidence
+            let bestResult;
+    
+            if (data1.confidence > data2.confidence) {
+                bestResult = data1;
+            } else {
+                bestResult = data2;
+            }
+    
             setResult({
-                class: data.predicted_class,
-                confidence: data.confidence,
-                details: data.remedies
+                class: bestResult.predicted_class,
+                confidence: bestResult.confidence,
+                details: bestResult.remedies
             });
-
+    
         } catch (error) {
             console.error(error);
-            alert("Prediction failed. Check backend.");
+            alert("Prediction failed.");
         } finally {
             setLoading(false);
         }
